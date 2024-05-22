@@ -1,0 +1,6 @@
+name = "fastapi"
+compatibility_date = "2024-05-21"
+
+[vars]
+UPSATASH_TOKEN = "AbY_AAIncDFmNzlkMGYxODRlNmQ0NjcxYjdhN2NmMzRiMDY0N2NlMXAxNDY2NTU"
+UPSATASH_URL = "https://causal-silkworm-46655.upstash.io"

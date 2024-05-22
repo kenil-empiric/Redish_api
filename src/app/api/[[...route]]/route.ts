@@ -1,6 +1,7 @@
-import { Redis } from "@upstash/redis";
+import { Redis } from "@upstash/redis/cloudflare";
 import { Hono } from "hono";
 import { env } from "hono/adapter";
+import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
 import { Result } from "postcss";
 
@@ -13,19 +14,45 @@ type Envconfig = {
   UPSATASH_URL: string;
 };
 
+app.use("/*", cors());
+
+app.get("/gettoken", async (c) => {
+  try {
+    console.log("123");
+
+    return c.json("hello word");
+  } catch (error) {
+    console.log(error);
+
+    console.error(error);
+
+    return c.json(
+      {
+        results: [],
+        message: " Somthing went to wrong",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+});
+
 app.get("/search", async (c) => {
   try {
     const { UPSATASH_TOKEN, UPSATASH_URL } = env<Envconfig>(c);
+
     const start = performance.now();
     const redis = new Redis({ token: UPSATASH_TOKEN, url: UPSATASH_URL });
 
-    const query = c.req.query("q");
+    const query = c.req.query("q")?.toUpperCase();
 
     if (!query) {
       return c.json({ message: "Invalid search query" }, { status: 400 });
     }
 
     const res = [];
+
     const rank = await redis.zrank("terms", query);
 
     if (rank != null && rank !== undefined) {
@@ -49,6 +76,8 @@ app.get("/search", async (c) => {
       duration: end - start,
     });
   } catch (error) {
+    console.log(error);
+
     console.error(error);
 
     return c.json(
